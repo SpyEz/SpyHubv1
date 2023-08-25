@@ -1,0 +1,185 @@
+print("Click League Script Loaded!")
+    getgenv().AutoClicker = false;
+    getgenv().AutoHatcher = false;
+    getgenv().AutoRebirth = false;
+    getgenv().EggName = nil
+
+    -------------------------------------Functions-------------------------------------
+    local Noclip = nil
+    local Clip = nil
+
+    function noclip()
+        Clip = false
+        local function Nocl()
+            if Clip == false and game.Players.LocalPlayer.Character ~= nil then
+                for _,v in pairs(game.Players.LocalPlayer.Character:GetDescendants()) do
+                    if v:IsA('BasePart') and v.CanCollide and v.Name ~= floatName then
+                        v.CanCollide = false
+                    end
+                end
+            end
+            wait(0.21) -- basic optimization
+        end
+        Noclip = game:GetService('RunService').Stepped:Connect(Nocl)
+    end
+    ------------------------------------UI-------------------------------------------
+    local OrionLib = loadstring(game:HttpGet(('https://raw.githubusercontent.com/shlexware/Orion/main/source')))()
+
+    local Window = OrionLib:MakeWindow({Name = "Spy Hub ", HidePremium = false, SaveConfig = true, ConfigFolder = "SpyTest", IntroText = "Welcome To Spy Hub: Click League"})
+    ----------------------Main Tab----------------------------------
+    local MainTab = Window:MakeTab({
+        Name = "Main",
+        Icon = "rbxassetid://4483345998",
+        PremiumOnly = false
+    })
+
+    local MainSection = MainTab:AddSection({
+        Name = "Main"
+    })
+
+    MainTab:AddToggle({
+        Name = "Auto Clicker",
+        Default = false,
+        Callback = function(Value)
+        AutoClicker = Value
+            spawn(function ()
+                while AutoClicker == true do
+                    game.ReplicatedStorage.Events.Tap:FireServer("Click")
+                    wait()
+                end
+            end) 
+        end
+    })
+
+    MainTab:AddToggle({
+        Name = "Auto Rebirth",
+        Default = false,
+        Callback = function(Value)
+        AutoRebirth = Value
+            spawn(function ()
+                while AutoRebirth == true do
+                    game:GetService("ReplicatedStorage").Events.Rebirth:FireServer(0)
+                    wait()
+                end
+            end) 
+        end
+    })
+
+    local EggsSection = MainTab:AddSection({
+        Name = "Eggs"
+    })
+
+    MainTab:AddDropdown({
+        Name = "Egg Hatcher",
+        Default = "Select Egg",
+        Options = {"Common Egg", "Spike Egg", "Rythm Egg"},
+        Callback = function(Value)
+            EggName = Value
+            print(EggName)
+        end    
+    })
+
+    MainTab:AddToggle({
+        Name = "Auto Hatch (stand next to egg you want to open)",
+        Default = false,
+        Callback = function(Value)
+            spawn(function ()
+                AutoHatcher = Value
+                while AutoHatcher == true do 
+                    game:GetService("ReplicatedStorage").Events.HatchEgg:FireServer(EggName, "One")
+                    wait()
+                end
+            end)
+        end
+    })
+    ---------------------------Player Tab-----------------------------------
+
+    local PlayerTab = Window:MakeTab({
+        Name = "Player",
+        Icon = "rbxassetid://4483345998",
+        PremiumOnly = false
+    })
+
+    local PlayerSection = PlayerTab:AddSection({
+        Name = "Player"
+    })
+
+
+    PlayerSection:AddSlider({
+        Name = "Walkspeed",
+        Min = 16,
+        Max = 100,
+        Default = 5,
+        Color = Color3.fromRGB(255,255,255),
+        Increment = 1,
+        ValueName = "Walkspeed",
+        Callback = function(Value)
+            game.Players.LocalPlayer.Character.Humanoid.WalkSpeed = Value
+        end    
+    })
+
+    PlayerSection:AddSlider({
+        Name = "JumpPower",
+        Min = 11,
+        Max = 100,
+        Default = 5,
+        Color = Color3.fromRGB(255,255,255),
+        Increment = 1,
+        ValueName = "JumpPower",
+        Callback = function(Value)
+            game.Players.LocalPlayer.Character.Humanoid.JumpHeight = Value
+        end    
+    })
+
+    PlayerTab:AddButton({
+        Name = "Infinite Jump",
+        Callback = function()
+            getgenv().infinjump = not getgenv().infinjump
+            if getgenv().infinJumpStarted == nil then
+                getgenv().infinJumpStarted = true
+                local plr = game:GetService('Players').LocalPlayer
+                local m = plr:GetMouse()
+                m.KeyDown:connect(function(k)
+                    if getgenv().infinjump then
+                        if k:byte() == 32 then
+                        humanoid = game:GetService'Players'.LocalPlayer.Character:FindFirstChildOfClass('Humanoid')
+                        humanoid:ChangeState('Jumping')
+                        wait()
+                        humanoid:ChangeState('Seated')
+                        end
+                    end
+                end)
+            end
+        end    
+    })
+
+    PlayerTab:AddButton({
+        Name = "Noclip",
+        Callback = function(v)
+                noclip()
+        end    
+    })
+    --------------------------------------Misc-------------------------------------------------
+    local MiscTab = Window:MakeTab({
+        Name = "Misc",
+        Icon = "rbxassetid://4483345998",
+        PremiumOnly = false
+    })
+
+    local MiscSection = MiscTab:AddSection({
+        Name = "Misc"
+    })
+
+    MiscTab:AddButton({
+        Name = "Claim Basic Chest",
+        Callback = function()
+            game:GetService("ReplicatedStorage").Events.Chest:FireServer("Basic Chest")
+        end    
+    })
+
+    MiscTab:AddButton({
+        Name = "Claim VIP Chest",
+        Callback = function()
+            game:GetService("ReplicatedStorage").Events.Chest:FireServer("VIP Chest")
+        end    
+    })
